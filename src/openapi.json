@@ -1,0 +1,345 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Documentation",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/route": {
+      "post": {
+        "summary": "Calculate the route between waypoints",
+        "description": "Calculates the fastest route between multiple waypoints using OSRM (Open Source Routing Machine).",
+        "requestBody": {
+          "description": "Request body containing the route options",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RouteOptionsType"
+              },
+              "example": {
+                "coordinates": [
+                  [13.38886, 52.517037],
+                  [13.397634, 52.529407]
+                ],
+                "alternatives": true,
+                "steps": true,
+                "annotations": ["duration", "distance"],
+                "geometries": "polyline",
+                "overview": "full",
+                "continue_straight": false,
+                "approaches": ["unrestricted"],
+                "waypoints": [0, 1],
+                "snapping": "default",
+                "exclude": ["toll"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouteResultsType"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/nearest": {
+      "post": {
+        "summary": "Find the nearest road segments to given coordinates",
+        "description": "Finds the nearest road segments to the given coordinates using OSRM (Open Source Routing Machine).",
+        "requestBody": {
+          "description": "Request body containing the nearest options",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NearestOptionsType"
+              },
+              "example": {
+                "coordinates": [
+                  [13.38886, 52.517037],
+                  [13.397634, 52.529407]
+                ],
+                "number": 5,
+                "approaches": ["curb"],
+                "snapping": "default"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NearestResultsType"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/match": {
+      "post": {
+        "summary": "Match GPS points to the road network",
+        "description": "Matches given GPS points to the road network in the most plausible way using OSRM (Open Source Routing Machine).",
+        "requestBody": {
+          "description": "Request body containing the match options",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MatchOptionsType"
+              },
+              "example": {
+                "coordinates": [
+                  [13.38886, 52.517037],
+                  [13.397634, 52.529407]
+                ],
+                "steps": true,
+                "annotations": ["duration", "nodes", "distance", "weight"],
+                "geometries": "polyline",
+                "overview": "simplified",
+                "timestamps": [1626494400, 1626494410],
+                "radiuses": [5, 5],
+                "gaps": "split",
+                "tidy": false,
+                "waypoints": [0, 1],
+                "snapping": "default",
+                "exclude": ["toll"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchResultsType"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RouteOptionsType": {
+        "type": "object",
+        "description": "Options for calculating a route",
+        "properties": {
+          "coordinates": {
+            "type": "array",
+            "description": "List of waypoint coordinates",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          },
+          "alternatives": {
+            "type": "boolean",
+            "description": "Whether to provide alternative routes"
+          },
+          "steps": {
+            "type": "boolean",
+            "description": "Whether to include steps in the route"
+          },
+          "annotations": {
+            "type": "array",
+            "description": "Types of annotations to include",
+            "items": {
+              "type": "string",
+              "enum": ["duration", "distance"]
+            }
+          },
+          "geometries": {
+            "type": "string",
+            "enum": ["polyline"],
+            "description": "Type of geometry encoding"
+          },
+          "overview": {
+            "type": "string",
+            "enum": ["full"],
+            "description": "Level of route overview"
+          },
+          "continue_straight": {
+            "type": "boolean",
+            "description": "Whether to force continue straight at waypoints"
+          },
+          "approaches": {
+            "type": "array",
+            "description": "Approach types to waypoints",
+            "items": {
+              "type": "string",
+              "enum": ["unrestricted"]
+            }
+          },
+          "waypoints": {
+            "type": "array",
+            "description": "List of waypoint indices",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "snapping": {
+            "type": "string",
+            "enum": ["default"],
+            "description": "Type of snapping algorithm"
+          },
+          "exclude": {
+            "type": "array",
+            "description": "Exclusion types",
+            "items": {
+              "type": "string",
+              "enum": ["toll"]
+            }
+          }
+        },
+        "required": ["coordinates"]
+      },
+      "RouteResultsType": {
+        "type": "object",
+        "description": "Results of a route calculation"
+      },
+      "NearestOptionsType": {
+        "type": "object",
+        "description": "Options for finding nearest road segments",
+        "properties": {
+          "coordinates": {
+            "type": "array",
+            "description": "List of coordinates to search for",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          },
+          "number": {
+            "type": "integer",
+            "description": "Number of nearest segments to return"
+          },
+          "approaches": {
+            "type": "array",
+            "description": "Approach types to nearest segments",
+            "items": {
+              "type": "string",
+              "enum": ["curb"]
+            }
+          },
+          "snapping": {
+            "type": "string",
+            "enum": ["default"],
+            "description": "Type of snapping algorithm"
+          }
+        },
+        "required": ["coordinates"]
+      },
+      "NearestResultsType": {
+        "type": "object",
+        "description": "Results of a nearest search"
+      },
+      "MatchOptionsType": {
+        "type": "object",
+        "description": "Options for matching GPS points to road network",
+        "properties": {
+          "coordinates": {
+            "type": "array",
+            "description": "List of GPS coordinates to match",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          },
+          "steps": {
+            "type": "boolean",
+            "description": "Whether to include steps in the match result"
+          },
+          "annotations": {
+            "type": "array",
+            "description": "Types of annotations to include",
+            "items": {
+              "type": "string",
+              "enum": ["duration", "nodes", "distance", "weight"]
+            }
+          },
+          "geometries": {
+            "type": "string",
+            "enum": ["polyline"],
+            "description": "Type of geometry encoding"
+          },
+          "overview": {
+            "type": "string",
+            "enum": ["simplified"],
+            "description": "Level of route overview"
+          },
+          "timestamps": {
+            "type": "array",
+            "description": "List of timestamps corresponding to each GPS coordinate",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "radiuses": {
+            "type": "array",
+            "description": "List of radiuses for each GPS coordinate",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "gaps": {
+            "type": "string",
+            "enum": ["split"],
+            "description": "Type of gap splitting algorithm"
+          },
+          "tidy": {
+            "type": "boolean",
+            "description": "Whether to apply tidying of the matched path"
+          },
+          "waypoints": {
+            "type": "array",
+            "description": "List of waypoint indices",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "snapping": {
+            "type": "string",
+            "enum": ["default"],
+            "description": "Type of snapping algorithm"
+          },
+          "exclude": {
+            "type": "array",
+            "description": "Exclusion types",
+            "items": {
+              "type": "string",
+              "enum": ["toll"]
+            }
+          }
+        },
+        "required": ["coordinates"]
+      },
+      "MatchResultsType": {
+        "type": "object",
+        "description": "Results of a GPS point matching"
+      }
+    }
+  }
+}
