@@ -5,6 +5,7 @@ const rootDir = process.cwd();
 
 class OSRMSingleton {
   private static instances: Map<string, OSRM> = new Map();
+  private static readonly algorithm: OSRM.AlgorithmTypes = process.env.OSRM_ROUTING_ALGORITHM as OSRM.AlgorithmTypes  ?? 'MLD'
 
   private constructor() {
     // Private constructor to prevent external instantiation
@@ -14,7 +15,7 @@ class OSRMSingleton {
     if (!OSRMSingleton.instances.has(region)) {
       OSRMSingleton.instances.set(
         region,
-        new OSRM({ path: `${rootDir}/data/${region}/${region}-latest.osrm`, algorithm: 'MLD' })
+        new OSRM({ path: `${rootDir}/data/${region}/${region}-latest.osrm`, algorithm: OSRMSingleton.algorithm })
       );
     }
     return OSRMSingleton.instances.get(region) as OSRM;
